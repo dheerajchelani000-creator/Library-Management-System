@@ -1,5 +1,3 @@
-# Library Management System
+# C++ OOP Based Library Console App
 
-A C++ application intended to assist in managing book inventories, issue/return and purchase book transactions, and member records efficiently.
-
-
+This system leverages Inheritance and Runtime Polymorphism to structure the user roles (Admin and Student). It manages the library's inventory and tracks issued, submitted, and purchased books against individual student registration numbers.
