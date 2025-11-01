@@ -1,6 +1,8 @@
 #include <iostream>
 #include <vector>
 #include <string>
+
+
 using namespace std;
 
 int totalBooksAdded = 0;
@@ -33,10 +35,7 @@ public:
         bookNames.push_back(currentBookName);
         bookIds.push_back(currentBookId);
         isBookPresent.push_back(currentBookPresent);
-        // Book& operator+(Book& other){
-
-        // }
-
+        
         totalBooksAdded++;
         cout << "Book \"" << currentBookName << "\" with ID " << currentBookId << " added successfully.\n";
     }
@@ -85,16 +84,20 @@ public:
     friend class Admin;
 };
 
+
+// POLYMORPHISM BASE CLASS 
+
+
 class Registration
 {
 protected:
     vector<int> registrationNumbers;
     vector<bool> isRegistrationActive;
 
- 
-
-
 public:
+   
+    virtual ~Registration() {}
+
     void addRegistration()
     {
         int newRegNo;
@@ -128,16 +131,27 @@ public:
         if (!found)
             cout << "Registration Number not found.\n";
     }
+    
+    // VIRTUAL FUNCTION:
+    virtual void displayRole() const {
+        cout << "Role: Generic Library User\n";
+    }
+    
     friend class Admin;
 
-       void registration(){
+    void registration(){
+        cout << "\n--- All Registered Numbers ---\n";
         for(int i=0;i<registrationNumbers.size();i++){
             cout<<registrationNumbers[i]<<endl;
         }
     }
 };
 
-class Admin : public Book, public Registration
+
+// DERIVED CLASS 1: Admin
+
+
+class Admin : public Book, public Registration // Inherits from Registration
 {
     int enteredBookId;
     int enteredRegNo;
@@ -145,8 +159,13 @@ class Admin : public Book, public Registration
     int bookIndexToRemove;
 
 public:
-    // static int n;
     vector<pair<int, string>> removedBooks; // temporarily store issued books
+    
+    // OVERRIDE: Admin-specific role display
+    void displayRole() const  {
+        cout << "Role: Admin (Can Add/Remove Books, Issue/Submit/Purchase)\n";
+    }
+
 
     void issueBooks(Book &bookObj, Registration &regObj)
     {
@@ -333,14 +352,22 @@ public:
             cout << "Registration Number not found.\n";
     }
 
- 
 };
 
-class Student
+
+// DERIVED CLASS 2: Student
+
+
+class Student : public Registration // Inherits from Registration
 {
     string searchBookName;
 
 public:
+    // OVERRIDE: Student-specific role display
+    void displayRole() const  {
+        cout << "Role: Student (Can Search Books)\n";
+    }
+
     void searchBook(Book &bookObj)
     {
         cout << "\nEnter Book Name to Search: ";
@@ -360,16 +387,22 @@ public:
             cout << "Book \"" << searchBookName << "\" is not available at this time.\n";
     }
 };
+
+
+// MAIN FUNCTION
+
+
 int main()
 {
     Book bookManager;
-    Registration registrationManager;
-    Student studentUser;
-    Admin adminUser;
+    
+    Registration registrationManager; 
+    Student studentUser;             
+    Admin adminUser;               
 
     cout << "================ Library Management System ================\n";
-    cout << "1. Add Books\n";
-    cout << "2. Remove Books\n";
+    cout << "1. Add Books (Admin)\n";
+    cout << "2. Remove Books (Admin)\n";
     cout << "3. Add Students\n";
     cout << "4. Remove Students\n";
     cout << "5. Exit\n";
@@ -377,14 +410,21 @@ int main()
     cout << "7. Search Book (Student)\n";
     cout << "8. Issue Books (Admin)\n";
     cout << "9. Submit Books (Admin)\n";
-    cout << "10. purchase Books (Admin)\n";
-    cout << "11. display registration no\n";
+    cout << "10. Purchase Books (Admin)\n";
+    cout << "11. Display Role (Polymorphic Call) \n"; 
+    cout << "12. Display Registration No\n";
+  
+    
 
     while (1)
     {
         int userChoice;
         cout << "\nEnter Your Choice: ";
-        cin >> userChoice;
+        cin>>userChoice;
+        
+       
+       
+        
         switch (userChoice)
         {
         case 1:
@@ -413,7 +453,8 @@ int main()
             cout << "\nHow many students do you want to add? ";
             cin >> numberOfStudents;
             for (int i = 0; i < numberOfStudents; i++)
-                registrationManager.addRegistration();
+
+                studentUser.addRegistration();
             break;
         }
 
@@ -423,7 +464,7 @@ int main()
             cout << "\nHow many students do you want to remove? ";
             cin >> numberOfStudents;
             for (int i = 0; i < numberOfStudents; i++)
-                registrationManager.removeRegistration();
+                studentUser.removeRegistration(); 
             break;
         }
 
@@ -438,6 +479,9 @@ int main()
             bookManager.displayBooks();
             break;
         }
+
+  
+
         case 7:
         {
             studentUser.searchBook(bookManager);
@@ -445,25 +489,45 @@ int main()
         }
         case 8:
         {
-            adminUser.issueBooks(bookManager, registrationManager);
+            adminUser.issueBooks(bookManager, studentUser); 
             break;
         }
         case 9:
         {
-            adminUser.submitBooks(bookManager, registrationManager);
+            adminUser.submitBooks(bookManager, studentUser); 
             break;
         }
         case 10:
         {int n;
-            cout<<"enter how many book you want to purchase";
-cin>>n;
-           adminUser.issueBooks(bookManager, registrationManager,n);
+            cout<<"enter how many book you want to purchase: ";
+            cin>>n;
+            adminUser.issueBooks(bookManager, studentUser,n);
             break; 
         }
-        case 11:
+        case 11: 
         {
-registrationManager.registration();
-break;
+            cout << "\n--- Demonstrating RUNTIME POLYMORPHISM (Option 11) ---\n";
+            
+            Registration* userPtr; // Base Class Pointer
+
+            // Pointer points to Student object
+            userPtr = &studentUser;
+            cout << "Calling displayRole() via Student object pointer:\n";
+            userPtr->displayRole(); 
+
+            
+            userPtr = &adminUser;
+            cout << "\nCalling displayRole() via Admin object pointer:\n";
+            userPtr->displayRole(); 
+            
+
+
+            break;
+        }
+        case 12:
+        {
+            studentUser.registration(); 
+            break;
         }
         default:
         {
