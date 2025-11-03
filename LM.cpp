@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <fstream>
 
 
 using namespace std;
@@ -31,14 +32,28 @@ public:
         cout << "Enter Book ID: ";
         cin >> currentBookId;
 
-        currentBookPresent = true;
+              try
+        {
+            if (currentBookId >= 1000)
+                throw "Book ID must be less than 1000!";  
+             currentBookPresent = true;
         bookNames.push_back(currentBookName);
         bookIds.push_back(currentBookId);
         isBookPresent.push_back(currentBookPresent);
         
         totalBooksAdded++;
         cout << "Book \"" << currentBookName << "\" with ID " << currentBookId << " added successfully.\n";
+        }
+        catch (const char *msg)
+        {
+            cout << "Error: " << msg << endl;
+        }
     }
+
+
+
+       
+    
 
     void removeBook()
     {
@@ -80,6 +95,27 @@ public:
         }
     }
 
+    // store data in booksdata.txt
+void saveBooksToFile()
+    {
+        ofstream fout("BooksData.txt");
+        if (!fout)
+        {
+            cout << "Error creating BooksData.txt file.\n";
+            return;
+        }
+
+        fout << "===== Library Books Data =====\n";
+        for (size_t i = 0; i < bookNames.size(); ++i)
+        {
+            fout << "Book ID: " << bookIds[i] << " | Book Name: " << bookNames[i] << "\n";
+        }
+        fout << "Total Books: " << totalBooksAdded << "\n";
+        fout.close();
+
+        cout << "\n Books data saved to 'BooksData.txt' successfully.\n";
+    }
+
     friend class Student;
     friend class Admin;
 };
@@ -104,10 +140,25 @@ public:
         cout << "\nEnter Student Registration Number: ";
         cin >> newRegNo;
 
-        registrationNumbers.push_back(newRegNo);
+
+         try
+        {
+            if (newRegNo <= 1000)
+                throw "Registration number must be greater than 1000!";  
+
+           registrationNumbers.push_back(newRegNo);
         isRegistrationActive.push_back(true);
 
         cout << "Student with Registration Number " << newRegNo << " added successfully.\n";
+        }
+        catch (const char *msg)
+        {
+            cout << "Error: " << msg << endl;
+        }
+
+
+
+        
     }
 
     void removeRegistration()
@@ -145,6 +196,31 @@ public:
             cout<<registrationNumbers[i]<<endl;
         }
     }
+
+    //  store data of student in studentdata.txt
+ void saveRegistrationsToFile()
+    {
+        ofstream fout("StudentData.txt");
+        if (!fout)
+        {
+            cout << "Error creating StudentData.txt file.\n";
+            return;
+        }
+
+        fout << "===== Registered Students =====\n";
+        for (size_t i = 0; i < registrationNumbers.size(); ++i)
+        {
+            fout << "Reg No: " << registrationNumbers[i]
+                 << " | Status: " << (isRegistrationActive[i] ? "Active" : "Inactive") << "\n";
+        }
+        fout.close();
+
+        cout << "\n Student registration data saved to 'StudentData.txt' successfully.\n";
+    }
+
+
+
+
 };
 
 
@@ -405,7 +481,7 @@ int main()
     cout << "2. Remove Books (Admin)\n";
     cout << "3. Add Students\n";
     cout << "4. Remove Students\n";
-    cout << "5. Exit\n";
+    cout << "5. save data to file\n";
     cout << "6. Display Books\n";
     cout << "7. Search Book (Student)\n";
     cout << "8. Issue Books (Admin)\n";
@@ -413,6 +489,7 @@ int main()
     cout << "10. Purchase Books (Admin)\n";
     cout << "11. Display Role (Polymorphic Call) \n"; 
     cout << "12. Display Registration No\n";
+    cout << "13. Exit\n";
   
     
 
@@ -468,7 +545,7 @@ int main()
             break;
         }
 
-        case 5:
+        case 13:
         {
             cout << "Exiting the program. Thank you!\n";
             exit(0);
@@ -529,6 +606,13 @@ int main()
             studentUser.registration(); 
             break;
         }
+
+         case 5: {
+            bookManager.saveBooksToFile();
+            studentUser.saveRegistrationsToFile();
+            break;
+         }
+
         default:
         {
             cout << "Invalid choice. Please try again.\n";
